@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zarsh – AI Logo & Domain Generator</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Poppins:wght@600&family=Raleway:wght@700&family=Bebas+Neue&family=Pacifico&family=Lobster&family=Orbitron:wght@700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f7fafc;
+      color: #2d3748;
+    }
+
+    #logoGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .logo-card {
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      color: white;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-height: 150px;
+      user-select: none;
+    }
+
+    .logo-card:hover {
+      transform: scale(1.07);
+      box-shadow: 0 18px 28px rgba(118, 75, 162, 0.6);
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+      user-select: text;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45),
+        0 0 5px rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .logo-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+    }
+
+    .logo-actions button,
+    .logo-actions a {
+      background: rgba(255, 255, 255, 0.9);
+      color: #5a3e99;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      user-select: none;
+      box-shadow: 0 3px 8px rgba(90, 62, 153, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+
+    .logo-actions button:hover,
+    .logo-actions a:hover {
+      background-color: #5a3e99;
+      color: white;
+    }
+
+    header {
+      background: linear-gradient(to right, #1a202c, #2c5282, #2b6cb0);
+      color: white;
+    }
+
+    /* Modal styles */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .font-option {
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      margin: 0.3rem 0;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      user-select: none;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+      font-weight: 700;
+    }
+    .font-option:hover {
+      background-color: #f3f4f6;
+    }
+    .font-option.selected {
+      border-color: #5a3e99;
+      background-color: #ede9fe;
+    }
+
+    .color-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1rem 0 2rem;
+    }
+
+    .color-inputs label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #444;
+      user-select: none;
+    }
+
+    .color-inputs input[type="color"] {
+      margin-top: 6px;
+      width: 48px;
+      height: 36px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      background-color: #5a3e99;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #3e2673;
+    }
+
+    .btn-secondary {
+      background-color: #ccc;
+      color: #444;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background-color: #aaa;
+    }
+
+  </style>
+</head>
+<body class="scroll-smooth">
+
+  <!-- Header -->
+  <header class="p-4 flex justify-between items-center flex-wrap sticky top-0 z-50 shadow">
+    <h1 class="text-3xl font-bold cursor-pointer select-none" onclick="location.href='index.html'">Zarsh</h1>
+    <nav class="space-x-4 text-sm uppercase tracking-wide">
+      <a href="#" class="hover:text-yellow-400">Home</a>
+      <a href="#services" class="hover:text-yellow-400">Services</a>
+      <a href="#about" class="hover:text-yellow-400">About</a>
+      <a href="#logoGrid" class="hover:text-yellow-400">Logos</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="text-center py-10 px-4">
+    <h2 class="text-4xl font-extrabold uppercase text-blue-800 mb-3">AI Business Name Generator</h2>
+    <p class="text-gray-600 mb-10 max-w-xl mx-auto">Type a keyword (e.g., "crypto", "tech", "green"), choose a font, font color, and background color, and get modern brand name ideas, instant logos, and .com check!</p>
+
+    <!-- Controls -->
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
+      <input id="nameInput" type="text" placeholder="Enter keyword…" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm w-60 focus:ring-2 focus:ring-blue-500" />
+      
+      <button id="openStylePopup" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition active:scale-95">
+        Choose Style
+      </button>
+
+      <button id="generateBtn" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition active:scale-95">Generate</button>
+    </div>
+
+    <p id="loading" class="text-blue-700 font-medium hidden">Generating…</p>
+    <section id="logoGrid"></section>
+
+    <div class="mt-6 flex justify-center gap-4">
+      <button id="loadMore" class="hidden bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition">Load More</button>
+      <button id="cancelBtn" class="hidden bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Cancel</button>
+    </div>
+  </main>
+
+  <!-- Style Popup Modal -->
+  <div id="styleModal" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="styleModalTitle" tabindex="-1">
+    <div class="modal" role="document">
+      <h3 id="styleModalTitle" class="text-2xl font-bold mb-4 text-purple-700">Select Font & Colors</h3>
+
+      <div id="fontList" style="max-height: 280px; overflow-y: auto; margin-bottom: 1rem;">
+        <!-- Fonts will be inserted here -->
+      </div>
+
+      <div class="color-inputs">
+        <label>
+          Font Color
+          <input type="color" id="fontColor" value="#ffffff" title="Font Color" />
+        </label>
+        <label>
+          Background Color
+          <input type="color" id="bgColor" value="#4c51bf" title="Background Color" />
+        </label>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="applyStyleBtn" class="btn-primary">Apply</button>
+        <button id="closeStyleBtn" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services Section -->
+  <section id="services" class="bg-gradient-to-r from-gray-900 via-blue-900 to-blue-800 text-white py-14 px-6 text-center">
+    <h2 class="text-3xl font-bold mb-8" data-aos="fade-up">Our Services</h2>
+    <ul class="space-y-3 text-lg" data-aos="fade-up" data-aos-delay="100">
+      <li>⚡ AI-Powered Name Suggestions</li>
+      <li>🎨 Instant Logo Creation (PNG)</li>
+      <li>🔍 GoDaddy .com Availability Check</li>
+      <li>🌈 Brand Font & Color Palette Ideas</li>
+      <li>🚀 Fast & Mobile-Friendly UI</li>
+    </ul>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-14 px-6 max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-10" data-aos="fade-up">Why Use Zarsh?</h2>
+    <div class="flex flex-col md:flex-row items-center gap-8">
+      <div class="flex-1 text-gray-700 text-lg space-y-4" data-aos="fade-right">
+        <p>Catchy names stand out, drive brand recall, and elevate your online identity. Zarsh uses smart suffixes, fonts, and styles to create scroll-stopping names + logos.</p>
+      </div>
+      <img src="branding-info.png" alt="Branding Benefits" class="flex-1 rounded-lg shadow w-full max-w-sm" loading="lazy" data-aos="fade-left" />
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-800 text-white text-center py-5">© 2025 Zarsh. All rights reserved.</footer>
+
+  <!-- Script -->
+  <script>
+    AOS.init({ once: true, duration: 600 });
+
+    const fontStyles = [
+      { name: "Poppins", css: "'Poppins', sans-serif" },
+      { name: "Raleway", css: "'Raleway', sans-serif" },
+      { name: "Bebas Neue", css: "'Bebas Neue', cursive" },
+      { name: "Pacifico", css: "'Pacifico', cursive" },
+      { name: "Lobster", css: "'Lobster', cursive" },
+      { name: "Orbitron", css: "'Orbitron', sans-serif" },
+      { name: "Playfair Display", css: "'Playfair Display', serif" }
+    ];
+
+    // Variables for selected style
+    let selectedFontName = 'random';  // default random font
+    let selectedFontCss = '';
+    let selectedFontColor = '#ffffff';
+    let selectedBgColor = '#4c51bf';
+
+    const logoGrid = document.getElementById('logoGrid');
+    const generateBtn = document.getElementById('generateBtn');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const nameInput = document.getElementById('nameInput');
+    const loadingText = document.getElementById('loading');
+
+    const styleModal = document.getElementById('styleModal');
+    const openStyleBtn = document.getElementById('openStylePopup');
+    const closeStyleBtn = document.getElementById('closeStyleBtn');
+    const applyStyleBtn = document.getElementById('applyStyleBtn');
+    const fontListDiv = document.getElementById('fontList');
+    const fontColorInput = document.getElementById('fontColor');
+    const bgColorInput = document.getElementById('bgColor');
+
+    let allLogos = [];
+    let currentIndex = 0;
+    const batchSize = 18;
+    let isLoading = false;
+
+    // Populate font options inside modal
+    function populateFonts() {
+      fontListDiv.innerHTML = '';
+      fontStyles.forEach((font, idx) => {
+        const div = document.createElement('div');
+        div.className = 'font-option';
+        div.textContent = font.name;
+        div.style.fontFamily = font.css;
+        div.setAttribute('data-font-css', font.css);
+        div.setAttribute('data-font-name', font.name);
+
+        if (selectedFontName === font.name) {
+          div.classList.add('selected');
+        }
+
+        div.addEventListener('click', () => {
+          // Deselect all
+          document.querySelectorAll('.font-option').forEach(el => el.classList.remove('selected'));
+          // Select this
+          div.classList.add('selected');
+          selectedFontName = font.name;
+          selectedFontCss = font.css;
+        });
+
+        fontListDiv.appendChild(div);
+      });
+    }
+
+    // Open style modal
+    openStyleBtn.addEventListener('click', () => {
+      // Set current color and font in inputs and selection
+      fontColorInput.value = selectedFontColor;
+      bgColorInput.value = selectedBgColor;
+      if (!selectedFontCss) {
+        // If no font selected yet, pick first font
+        selectedFontCss = fontStyles[0].css;
+        selectedFontName = fontStyles[0].name;
+      }
+      populateFonts();
+      styleModal.classList.add('active');
+      styleModal.focus();
+    });
+
+    // Close style modal
+    closeStyleBtn.addEventListener('click', () => {
+      styleModal.classList.remove('active');
+    });
+
+    // Apply style from modal inputs
+    applyStyleBtn.addEventListener('click', () => {
+      selectedFontColor = fontColorInput.value;
+      selectedBgColor = bgColorInput.value;
+
+      // Apply styles to all existing logos if any
+      updateAllLogosStyle();
+
+      styleModal.classList.remove('active');
+    });
+
+    // Close modal on background click or Esc
+    styleModal.addEventListener('click', (e) => {
+      if (e.target === styleModal) {
+        styleModal.classList.remove('active');
+      }
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && styleModal.classList.contains('active')) {
+        styleModal.classList.remove('active');
+      }
+    });
+
+    function updateAllLogosStyle() {
+      const cards = document.querySelectorAll('.logo-card');
+      cards.forEach(card => {
+        card.style.backgroundColor = selectedBgColor;
+        const textElem = card.querySelector('.logo-text');
+        textElem.style.color = selectedFontColor;
+        textElem.style.fontFamily = selectedFontCss || getRandomFont();
+      });
+    }
+
+    function getRandomFont() {
+      // Return random font from fontStyles
+      const randomFont = fontStyles[Math.floor(Math.random() * fontStyles.length)];
+      return randomFont.css;
+    }
+
+    // Generate logo cards from names
+    function generateLogos(names) {
+      const fragment = document.createDocumentFragment();
+      names.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'logo-card';
+        card.style.backgroundColor = selectedBgColor;
+        card.style.fontFamily = selectedFontCss || getRandomFont();
+
+        // Logo text with style
+        const logoText = document.createElement('div');
+        logoText.className = 'logo-text';
+        logoText.textContent = name;
+        logoText.style.color = selectedFontColor;
+
+        // Actions container
+        const actions = document.createElement('div');
+        actions.className = 'logo-actions';
+
+        // Download PNG button
+        const downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Download PNG';
+        downloadBtn.title = `Download logo "${name}" as PNG`;
+        downloadBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          downloadLogoAsPNG(card, name);
+        });
+
+        // GoDaddy .com check link
+        const domainUrl = `https://www.godaddy.com/domainsearch/find?checkAvail=1&tmskey=&domainToCheck=${encodeURIComponent(name)}.com`;
+        const domainLink = document.createElement('a');
+        domainLink.href = domainUrl;
+        domainLink.target = '_blank';
+        domainLink.rel = 'noopener noreferrer';
+        domainLink.textContent = '.com Check';
+        domainLink.title = `Check domain availability for ${name}.com`;
+
+        actions.appendChild(downloadBtn);
+        actions.appendChild(domainLink);
+
+        card.appendChild(logoText);
+        card.appendChild(actions);
+
+        fragment.appendChild(card);
+      });
+      logoGrid.appendChild(fragment);
+    }
+
+    // Download logo card as PNG using html2canvas
+    function downloadLogoAsPNG(element, name) {
+      html2canvas(element).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `${name}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // Fake generate function - replace with your actual AI backend call
+    function generateNames(keyword, count = 54) {
+      if (!keyword) return [];
+      const suffixes = ['ify', 'ly', 'hub', 'verse', 'space', 'nest', 'cube', 'flow', 'spark', 'zone'];
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        const suffix = suffixes[i % suffixes.length];
+        results.push(keyword + suffix);
+      }
+      return results;
+    }
+
+    // Initial variables
+    let generatedNames = [];
+    currentIndex = 0;
+
+    generateBtn.addEventListener('click', () => {
+      const keyword = nameInput.value.trim();
+      if (!keyword) {
+        alert('Please enter a keyword to generate logos.');
+        return;
+      }
+      loadingText.classList.remove('hidden');
+      generateBtn.disabled = true;
+      openStyleBtn.disabled = true;
+
+      setTimeout(() => {
+        generatedNames = generateNames(keyword);
+        logoGrid.innerHTML = '';
+        currentIndex = 0;
+        renderNextBatch();
+        loadingText.classList.add('hidden');
+        generateBtn.disabled = false;
+        openStyleBtn.disabled = false;
+      }, 500);
+    });
+
+    function renderNextBatch() {
+      const nextBatch = generatedNames.slice(currentIndex, currentIndex + batchSize);
+      generateLogos(nextBatch);
+      currentIndex += batchSize;
+
+      if (currentIndex >= generatedNames.length) {
+        loadMoreBtn.classList.add('hidden');
+      } else {
+        loadMoreBtn.classList.remove('hidden');
+      }
+    }
+
+    loadMoreBtn.addEventListener('click', () => {
+      renderNextBatch();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      // Clear all
+      logoGrid.innerHTML = '';
+      generatedNames = [];
+      currentIndex = 0;
+      loadMoreBtn.classList.add('hidden');
+      cancelBtn.classList.add('hidden');
+    });
+
+    // On name input change, reset output and buttons
+    nameInput.addEventListener('input', () => {
+      logoGrid.innerHTML = '';
+      generatedNames = [];
+      currentIndex = 0;
+      loadMoreBtn.classList.add('hidden');
+      cancelBtn.classList.add('hidden');
+    });
+
+  </script>
+
+</body>
+</html>
